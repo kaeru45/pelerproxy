@@ -163,6 +163,7 @@ def unban_user(user_id: int):
 
 def add_registration(user_id: int, email: str, password: str, token: str, proxy_count: int = 0) -> int:
     """Add a new registration. Returns the registration ID."""
+    get_or_create_user(user_id)
     conn = get_db()
     now = int(time.time())
     cur = conn.execute(
