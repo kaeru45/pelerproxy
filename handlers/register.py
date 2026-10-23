@@ -150,7 +150,11 @@ async def manual_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Enter manual registration from button callback."""
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text("📧 Please send your *email* address:", parse_mode="Markdown")
+    await query.edit_message_text(
+        "📧 Please send your *email* address (or /cancel to abort):",
+        parse_mode="Markdown",
+        reply_markup=back_to_menu(),
+    )
     return WAITING_EMAIL
 
 
@@ -246,7 +250,12 @@ def build_conv_handler() -> ConversationHandler:
             WAITING_EMAIL: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_email)],
             WAITING_PASSWORD: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_password)],
         },
-        fallbacks=[CommandHandler("cancel", cancel)],
+        fallbacks=[
+            CommandHandler("cancel", cancel),
+            CommandHandler("start", cancel),
+            CallbackQueryHandler(cancel, pattern="^start$"),
+        ],
+        allow_reentry=True,
         per_chat=True,
         per_message=False,
     )
